@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/shenikar/question-service/docs"
 	"github.com/shenikar/question-service/internal/config"
 	"github.com/shenikar/question-service/internal/db"
 	"github.com/shenikar/question-service/internal/handler"
@@ -11,6 +12,11 @@ import (
 	"github.com/shenikar/question-service/internal/service"
 )
 
+// @title API Сервиса Вопросов
+// @version 1.0
+// @description Это пример сервера для сервиса вопросов.
+// @host localhost:8080
+// @BasePath /
 func main() {
 	// Инициализация логгера
 	appLogger := logger.NewLogger()

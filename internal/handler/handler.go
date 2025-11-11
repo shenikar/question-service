@@ -25,6 +25,14 @@ func NewHandler(s service.Service, logger *logrus.Logger) *Handler {
 }
 
 // CreateQuestion создает новый вопрос.
+// @Summary Create a new question
+// @Description Create a new question with the input payload
+// @Tags questions
+// @Accept  json
+// @Produce  json
+// @Param question body models.Question true "Question to create"
+// @Success 201 {object} models.Question
+// @Router /questions [post]
 func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("Received request to create question")
 	var question models.Question
@@ -57,6 +65,13 @@ func (h *Handler) CreateQuestion(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetQuestion получает вопрос по ID.
+// @Summary Get a question by ID
+// @Description Get a question by its ID
+// @Tags questions
+// @Produce  json
+// @Param id path int true "Question ID"
+// @Success 200 {object} models.Question
+// @Router /questions/{id} [get]
 func (h *Handler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	h.logger.Infof("Received request to get question with ID: %s", idStr)
@@ -83,6 +98,12 @@ func (h *Handler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetQuestions получает все вопросы.
+// @Summary Get all questions
+// @Description Get a list of all questions
+// @Tags questions
+// @Produce  json
+// @Success 200 {array} models.Question
+// @Router /questions [get]
 func (h *Handler) GetQuestions(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("Received request to get all questions")
 	questions, err := h.service.GetAllQuestions()
@@ -102,6 +123,12 @@ func (h *Handler) GetQuestions(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteQuestion удаляет вопрос по ID.
+// @Summary Delete a question by ID
+// @Description Delete a question by its ID
+// @Tags questions
+// @Param id path int true "Question ID"
+// @Success 204 "No Content"
+// @Router /questions/{id} [delete]
 func (h *Handler) DeleteQuestion(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	h.logger.Infof("Received request to delete question with ID: %s", idStr)
@@ -123,6 +150,15 @@ func (h *Handler) DeleteQuestion(w http.ResponseWriter, r *http.Request) {
 }
 
 // CreateAnswer создает ответ на вопрос.
+// @Summary Create an answer for a question
+// @Description Create an answer for a specific question
+// @Tags answers
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Question ID"
+// @Param answer body models.Answer true "Answer to create"
+// @Success 201 {object} models.Answer
+// @Router /questions/{id}/answers [post]
 func (h *Handler) CreateAnswer(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	h.logger.Infof("Received request to create answer for question ID: %s", idStr)
@@ -163,6 +199,13 @@ func (h *Handler) CreateAnswer(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAnswer получает ответ по ID.
+// @Summary Get an answer by ID
+// @Description Get an answer by its ID
+// @Tags answers
+// @Produce  json
+// @Param id path int true "Answer ID"
+// @Success 200 {object} models.Answer
+// @Router /answers/{id} [get]
 func (h *Handler) GetAnswer(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	h.logger.Infof("Received request to get answer with ID: %s", idStr)
@@ -189,6 +232,12 @@ func (h *Handler) GetAnswer(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteAnswer удаляет ответ по ID.
+// @Summary Delete an answer by ID
+// @Description Delete an answer by its ID
+// @Tags answers
+// @Param id path int true "Answer ID"
+// @Success 204 "No Content"
+// @Router /answers/{id} [delete]
 func (h *Handler) DeleteAnswer(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	h.logger.Infof("Received request to delete answer with ID: %s", idStr)
