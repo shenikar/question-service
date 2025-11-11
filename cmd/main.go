@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
 	"github.com/shenikar/question-service/internal/config"
 	"github.com/shenikar/question-service/internal/db"
 	"github.com/shenikar/question-service/internal/handler"
+	"github.com/shenikar/question-service/internal/logger"
 	"github.com/shenikar/question-service/internal/repository"
 	"github.com/shenikar/question-service/internal/router"
 	"github.com/shenikar/question-service/internal/server"
@@ -12,38 +12,41 @@ import (
 )
 
 func main() {
+	// Инициализация логгера
+	appLogger := logger.NewLogger()
+
 	// Загрузка конфигурации
-	cfg, err := config.Load()
+	cfg, err := config.Load(appLogger)
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		appLogger.Fatalf("Error loading .env file: %v", err)
 	}
 
 	// Подключение к базе данных
-	gormDB, sqlDB, err := db.Connect(cfg)
+	gormDB, sqlDB, err := db.Connect(cfg, appLogger)
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		appLogger.Fatalf("failed to connect database: %v", err)
 	}
 	defer func() {
-		if err := sqlDB.Close(); err != nil { // Корректно закрываем sqlDB
-			log.Printf("Error closing database connection: %v", err)
+		if err := sqlDB.Close(); err != nil {
+			appLogger.Errorf("Error closing database connection: %v", err)
 		}
 	}()
 
 	// Инициализация репозитория
-	repo := repository.NewRepository(gormDB)
+	repo := repository.NewRepository(gormDB, appLogger)
 
 	// Инициализация сервисов
-	s := service.NewService(repo)
+	s := service.NewService(repo, appLogger)
 
 	// Инициализация обработчиков
-	h := handler.NewHandler(s)
+	h := handler.NewHandler(s, appLogger)
 
 	// Настройка роутера
 	r := router.NewRouter(h)
 
 	// Инициализация и запуск сервера
-	srv := server.NewServer(r)
+	srv := server.NewServer(r, appLogger)
 	if err := srv.Run(); err != nil {
-		log.Fatalf("Server stopped with error: %v", err)
+		appLogger.Fatalf("Server stopped with error: %v", err)
 	}
 }
