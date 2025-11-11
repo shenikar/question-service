@@ -116,7 +116,7 @@ cp .env.example .env
 DB_HOST=db
 DB_PORT=5432
 DB_USER=postgres
-DB_PASSWORD=password
+DB_PASSWORD= your-password
 DB_NAME=question
 DB_SSLMODE=disable
 DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}"
