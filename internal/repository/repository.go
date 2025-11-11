@@ -9,7 +9,7 @@ import (
 type Repository interface {
 	CreateQuestion(question *models.Question) error
 	GetQuestion(id uint) (*models.Question, error)
-	GetQuestions() ([]models.Question, error)
+	GetAllQuestions() ([]models.Question, error)
 	DeleteQuestion(id uint) error
 	CreateAnswer(answer *models.Answer) error
 	GetAnswer(id uint) (*models.Answer, error)
@@ -40,16 +40,11 @@ func (r *dbRepository) GetQuestion(id uint) (*models.Question, error) {
 
 // CreateAnswer создает новый ответ в базе данных.
 func (r *dbRepository) CreateAnswer(answer *models.Answer) error {
-	// Проверяем, существует ли вопрос
-	var question models.Question
-	if err := r.db.First(&question, answer.QuestionID).Error; err != nil {
-		return err // Возвращаем ошибку, если вопрос не найден
-	}
 	return r.db.Create(answer).Error
 }
 
-// GetQuestions получает все вопросы из базы данных.
-func (r *dbRepository) GetQuestions() ([]models.Question, error) {
+// GetAllQuestions получает все вопросы из базы данных.
+func (r *dbRepository) GetAllQuestions() ([]models.Question, error) {
 	var questions []models.Question
 	err := r.db.Preload("Answers").Find(&questions).Error
 	return questions, err
