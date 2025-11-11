@@ -27,6 +27,6 @@ func Connect(cfg *config.Config, log *logrus.Logger) (*gorm.DB, *sql.DB, error) 
 		return nil, nil, fmt.Errorf("failed to get underlying sql.DB: %w", err)
 	}
 
-	log.Infoln("Connected to the database successfully") 
+	log.Infoln("Connected to the database successfully")
 	return gormDB, sqlDB, nil
 }

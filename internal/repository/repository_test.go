@@ -65,7 +65,9 @@ func TestGetQuestion(t *testing.T) {
 	mock.ExpectQuery(
 		`SELECT \* FROM "answers" WHERE "answers"."question_id" = \$1`).
 		WithArgs(1).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "question_id", "user_id", "text", "created_at"})) // пустой результат
+		WillReturnRows(sqlmock.NewRows([]string{
+			"id", "question_id", "user_id", "text", "created_at",
+		})) // пустой результат
 
 	question, err := repo.GetQuestion(1)
 	assert.NoError(t, err)
@@ -81,8 +83,11 @@ func TestGetQuestionNotFound(t *testing.T) {
 
 	mock.ExpectQuery(
 		`SELECT \* FROM "questions" WHERE "questions"."id" = \$1 ORDER BY "questions"."id" LIMIT \$2`). // <-- Изменено
-		WithArgs(999, 1).                                                                               // <-- Добавлен аргумент для LIMIT
-		WillReturnError(gorm.ErrRecordNotFound)                                                         // Возвращаем ошибку GORM
+		WithArgs(
+			999,
+			1,
+		).
+		WillReturnError(gorm.ErrRecordNotFound) // Возвращаем ошибку GORM
 
 	question, err := repo.GetQuestion(999)
 	assert.Error(t, err)
@@ -108,7 +113,9 @@ func TestGetAllQuestions(t *testing.T) {
 	mock.ExpectQuery(
 		`SELECT \* FROM "answers" WHERE "answers"."question_id" IN \(\$1,\$2\)`).
 		WithArgs(1, 2).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "question_id", "user_id", "text", "created_at"})) // пустой результат
+		WillReturnRows(sqlmock.NewRows([]string{
+			"id", "question_id", "user_id", "text", "created_at",
+		})) // пустой результат
 
 	questions, err := repo.GetAllQuestions()
 	assert.NoError(t, err)
@@ -169,9 +176,13 @@ func TestGetAnswer(t *testing.T) {
 
 	mock.ExpectQuery(
 		`SELECT \* FROM "answers" WHERE "answers"."id" = \$1 ORDER BY "answers"."id" LIMIT \$2`). // <-- Изменено
-		WithArgs(1, 1).                                                                           // <-- Добавлен аргумент для LIMIT
+		WithArgs(
+			1,
+			1,
+		). // <-- Добавлен аргумент для LIMIT
 		WillReturnRows(sqlmock.NewRows([]string{"id", "question_id", "user_id", "text", "created_at"}).
-			AddRow(expectedAnswer.ID, expectedAnswer.QuestionID, expectedAnswer.UserID, expectedAnswer.Text, expectedAnswer.CreatedAt))
+			AddRow(expectedAnswer.ID, expectedAnswer.QuestionID, expectedAnswer.UserID,
+				expectedAnswer.Text, expectedAnswer.CreatedAt))
 
 	answer, err := repo.GetAnswer(1)
 	assert.NoError(t, err)

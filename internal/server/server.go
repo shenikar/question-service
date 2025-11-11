@@ -18,11 +18,12 @@ type Server struct {
 }
 
 // NewServer создает новый экземпляр сервера.
-func NewServer(handler http.Handler, logger *logrus.Logger) *Server { // <-- Принимаем логгер
+func NewServer(handler http.Handler, logger *logrus.Logger) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:    ":8080",
-			Handler: handler,
+			Addr:              ":8080",
+			Handler:           handler,
+			ReadHeaderTimeout: 5 * time.Second,
 		},
 		logger: logger,
 	}

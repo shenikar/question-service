@@ -14,7 +14,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/shenikar/question-service/internal/models"
-	_ "github.com/shenikar/question-service/internal/service" // <-- Пустой импорт
 )
 
 // MockService - мок для интерфейса service.Service
@@ -141,7 +140,7 @@ func TestGetQuestionHandler(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	var responseQuestion models.Question
-	json.NewDecoder(rr.Body).Decode(&responseQuestion)
+	assert.NoError(t, json.NewDecoder(rr.Body).Decode(&responseQuestion))
 	assert.Equal(t, expectedQuestion.ID, responseQuestion.ID)
 	mockService.AssertExpectations(t)
 }
@@ -165,7 +164,7 @@ func TestGetAllQuestionsHandler(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	var responseQuestions []models.Question
-	json.NewDecoder(rr.Body).Decode(&responseQuestions)
+	assert.NoError(t, json.NewDecoder(rr.Body).Decode(&responseQuestions))
 	assert.Len(t, responseQuestions, 2)
 	assert.Equal(t, expectedQuestions[0].Text, responseQuestions[0].Text)
 	mockService.AssertExpectations(t)
@@ -235,7 +234,7 @@ func TestGetAllQuestionsHandlerEmpty(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	var responseQuestions []models.Question
-	json.NewDecoder(rr.Body).Decode(&responseQuestions)
+	assert.NoError(t, json.NewDecoder(rr.Body).Decode(&responseQuestions))
 	assert.Len(t, responseQuestions, 0)
 	mockService.AssertExpectations(t)
 }
@@ -324,7 +323,8 @@ func TestCreateAnswerHandlerServiceError(t *testing.T) {
 	answer := &models.Answer{Text: "Test Answer"}
 	answerJSON, _ := json.Marshal(answer)
 
-	mockService.On("CreateAnswer", questionID, mock.AnythingOfType("*models.Answer")).Return(errors.New("service error"))
+	mockService.On("CreateAnswer", questionID, mock.AnythingOfType("*models.Answer")).
+		Return(errors.New("service error"))
 
 	req := httptest.NewRequest(http.MethodPost, "/questions/1/answers", bytes.NewBuffer(answerJSON))
 	req.Header.Set("Content-Type", "application/json")
@@ -356,7 +356,7 @@ func TestGetAnswerHandler(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	var responseAnswer models.Answer
-	json.NewDecoder(rr.Body).Decode(&responseAnswer)
+	assert.NoError(t, json.NewDecoder(rr.Body).Decode(&responseAnswer))
 	assert.Equal(t, expectedAnswer.ID, responseAnswer.ID)
 	mockService.AssertExpectations(t)
 }
@@ -369,7 +369,8 @@ func TestCreateAnswerHandlerInvalidQuestionID(t *testing.T) {
 	answer := &models.Answer{Text: "Test Answer"}
 	answerJSON, _ := json.Marshal(answer)
 
-	req := httptest.NewRequest(http.MethodPost, "/questions/abc/answers", bytes.NewBuffer(answerJSON)) // Некорректный ID вопроса
+	req := httptest.NewRequest(http.MethodPost, "/questions/abc/answers", // Некорректный ID вопроса
+		bytes.NewBuffer(answerJSON))
 	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 
