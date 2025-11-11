@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql" // <-- Новый импорт
 	"fmt"
 	"log"
 
@@ -11,14 +12,20 @@ import (
 )
 
 // Connect устанавливает соединение с базой данных с помощью GORM
-func Connect(cfg *config.Config) (*gorm.DB, error) {
+// Возвращает *gorm.DB и базовый *sql.DB для закрытия соединений.
+func Connect(cfg *config.Config) (*gorm.DB, *sql.DB, error) {
 	connStr := cfg.GetDatabaseURL()
 
-	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	gormDB, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		return nil, nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	sqlDB, err := gormDB.DB()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get underlying sql.DB: %w", err)
 	}
 
 	log.Println("Connected to the database successfully")
-	return db, nil
+	return gormDB, sqlDB, nil
 }
