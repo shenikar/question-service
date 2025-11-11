@@ -1,10 +1,10 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 // Config хранит все конфигурации приложения.
@@ -13,9 +13,9 @@ type Config struct {
 }
 
 // Load считывает конфигурацию из .env файла или переменных окружения.
-func Load() (*Config, error) {
+func Load(log *logrus.Logger) (*Config, error) {
 	if err := godotenv.Load(); err != nil {
-		log.Println("Info: .env file not found, loading from environment variables")
+		log.Infoln("Info: .env file not found, loading from environment variables") // <-- Используем logrus
 	}
 
 	config := &Config{

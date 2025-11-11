@@ -1,19 +1,20 @@
 package db
 
 import (
-	"database/sql" // <-- Новый импорт
+	"database/sql"
 	"fmt"
-	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/shenikar/question-service/internal/config"
 )
 
 // Connect устанавливает соединение с базой данных с помощью GORM
 // Возвращает *gorm.DB и базовый *sql.DB для закрытия соединений.
-func Connect(cfg *config.Config) (*gorm.DB, *sql.DB, error) {
+func Connect(cfg *config.Config, log *logrus.Logger) (*gorm.DB, *sql.DB, error) {
 	connStr := cfg.GetDatabaseURL()
 
 	gormDB, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
@@ -26,6 +27,6 @@ func Connect(cfg *config.Config) (*gorm.DB, *sql.DB, error) {
 		return nil, nil, fmt.Errorf("failed to get underlying sql.DB: %w", err)
 	}
 
-	log.Println("Connected to the database successfully")
+	log.Infoln("Connected to the database successfully") 
 	return gormDB, sqlDB, nil
 }

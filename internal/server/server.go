@@ -2,26 +2,29 @@ package server
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Server представляет HTTP-сервер.
 type Server struct {
 	httpServer *http.Server
+	logger     *logrus.Logger
 }
 
 // NewServer создает новый экземпляр сервера.
-func NewServer(handler http.Handler) *Server {
+func NewServer(handler http.Handler, logger *logrus.Logger) *Server { // <-- Принимаем логгер
 	return &Server{
 		httpServer: &http.Server{
 			Addr:    ":8080",
 			Handler: handler,
 		},
+		logger: logger,
 	}
 }
 
@@ -33,15 +36,15 @@ func (s *Server) Run() error {
 
 	// Запускаем сервер в отдельной горутине
 	go func() {
-		log.Printf("Starting server on %s", s.httpServer.Addr)
+		s.logger.Infof("Starting server on %s", s.httpServer.Addr)
 		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server failed to start: %v", err)
+			s.logger.Fatalf("Server failed to start: %v", err)
 		}
 	}()
 
 	// Ожидаем сигнал завершения
 	<-stop
-	log.Println("Shutting down server...")
+	s.logger.Info("Shutting down server...")
 
 	// Создаем контекст с таймаутом для graceful shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -49,9 +52,9 @@ func (s *Server) Run() error {
 
 	// Корректно завершаем работу сервера
 	if err := s.httpServer.Shutdown(ctx); err != nil {
-		log.Fatalf("Server shutdown failed: %v", err)
+		s.logger.Fatalf("Server shutdown failed: %v", err)
 	}
 
-	log.Println("Server gracefully stopped.")
+	s.logger.Info("Server gracefully stopped.")
 	return nil
 }
